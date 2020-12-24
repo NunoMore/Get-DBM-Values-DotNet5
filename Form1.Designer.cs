@@ -1,4 +1,6 @@
 ﻿
+using System.Windows.Forms;
+
 namespace GetDbmData2
 {
     partial class Form1
@@ -115,6 +117,7 @@ namespace GetDbmData2
             this.TimeLapseTxtBox.Name = "TimeLapseTxtBox";
             this.TimeLapseTxtBox.Size = new System.Drawing.Size(94, 27);
             this.TimeLapseTxtBox.TabIndex = 3;
+            this.TimeLapseTxtBox.TextChanged += new System.EventHandler(this.TimeLapseTxtBox_TextChanged);
             // 
             // Blinker
             // 
@@ -134,6 +137,7 @@ namespace GetDbmData2
             this.StopButton.TabIndex = 1;
             this.StopButton.Text = "STOP";
             this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
             // 
             // StartBtn
             // 
@@ -151,6 +155,7 @@ namespace GetDbmData2
             this.NewUrlTxtBox.Name = "NewUrlTxtBox";
             this.NewUrlTxtBox.Size = new System.Drawing.Size(352, 27);
             this.NewUrlTxtBox.TabIndex = 2;
+            this.NewUrlTxtBox.TextChanged += new System.EventHandler(this.NewUrlTxtBox_TextChanged);
             // 
             // GoBtn
             // 
@@ -160,6 +165,7 @@ namespace GetDbmData2
             this.GoBtn.TabIndex = 1;
             this.GoBtn.Text = "GO";
             this.GoBtn.UseVisualStyleBackColor = true;
+            this.GoBtn.Click += new System.EventHandler(this.GoBtn_Click);
             // 
             // Form1
             // 
@@ -169,6 +175,7 @@ namespace GetDbmData2
             this.Controls.Add(this.Tabs);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosing += new FormClosingEventHandler(this.Form1_FormClosing);
             this.Tabs.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.UtilityPanel.ResumeLayout(false);

@@ -30,7 +30,7 @@ namespace GetDbmData2
             InitializeChromium();
         }
 
-        public void InitializeChromium()
+        private void InitializeChromium()
         {
             CefSettings settings = new CefSettings();
             // Initialize cef with the provided settings
@@ -89,7 +89,7 @@ namespace GetDbmData2
         }
 
         // STOP BUTTON
-        private void Button2_Click(object sender, EventArgs e)
+        private void StopButton_Click(object sender, EventArgs e)
         {
             IsStarted = false;
 
