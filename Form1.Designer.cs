@@ -32,14 +32,14 @@ namespace GetDbmData2
             this.Tabs = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.UtilityPanel = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.TimeLapseTxtBox = new System.Windows.Forms.TextBox();
+            this.Blinker = new System.Windows.Forms.RadioButton();
             this.StopButton = new System.Windows.Forms.Button();
             this.StartBtn = new System.Windows.Forms.Button();
             this.NewUrlTxtBox = new System.Windows.Forms.TextBox();
             this.GoBtn = new System.Windows.Forms.Button();
-            this.Blinker = new System.Windows.Forms.RadioButton();
-            this.label2 = new System.Windows.Forms.Label();
-            this.TimeLapseTxtBox = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.Tabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.UtilityPanel.SuspendLayout();
@@ -70,6 +70,7 @@ namespace GetDbmData2
             // 
             // UtilityPanel
             // 
+            this.UtilityPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.UtilityPanel.BackColor = System.Drawing.Color.Black;
             this.UtilityPanel.Controls.Add(this.label1);
             this.UtilityPanel.Controls.Add(this.label2);
@@ -84,49 +85,17 @@ namespace GetDbmData2
             this.UtilityPanel.Size = new System.Drawing.Size(452, 141);
             this.UtilityPanel.TabIndex = 0;
             // 
-            // StopButton
+            // label1
             // 
-            this.StopButton.Location = new System.Drawing.Point(228, 10);
-            this.StopButton.Name = "StopButton";
-            this.StopButton.Size = new System.Drawing.Size(94, 29);
-            this.StopButton.TabIndex = 1;
-            this.StopButton.Text = "STOP";
-            this.StopButton.UseVisualStyleBackColor = true;
-            // 
-            // StartBtn
-            // 
-            this.StartBtn.Location = new System.Drawing.Point(328, 10);
-            this.StartBtn.Name = "StartBtn";
-            this.StartBtn.Size = new System.Drawing.Size(94, 29);
-            this.StartBtn.TabIndex = 1;
-            this.StartBtn.Text = "START";
-            this.StartBtn.UseVisualStyleBackColor = true;
-            // 
-            // NewUrlTxtBox
-            // 
-            this.NewUrlTxtBox.Location = new System.Drawing.Point(16, 103);
-            this.NewUrlTxtBox.Name = "NewUrlTxtBox";
-            this.NewUrlTxtBox.Size = new System.Drawing.Size(352, 27);
-            this.NewUrlTxtBox.TabIndex = 2;
-            // 
-            // GoBtn
-            // 
-            this.GoBtn.Location = new System.Drawing.Point(374, 103);
-            this.GoBtn.Name = "GoBtn";
-            this.GoBtn.Size = new System.Drawing.Size(48, 29);
-            this.GoBtn.TabIndex = 1;
-            this.GoBtn.Text = "GO";
-            this.GoBtn.UseVisualStyleBackColor = true;
-            // 
-            // Blinker
-            // 
-            this.Blinker.AutoSize = true;
-            this.Blinker.Location = new System.Drawing.Point(428, 16);
-            this.Blinker.Name = "Blinker";
-            this.Blinker.Size = new System.Drawing.Size(17, 16);
-            this.Blinker.TabIndex = 1;
-            this.Blinker.TabStop = true;
-            this.Blinker.UseVisualStyleBackColor = true;
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Black;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label1.ForeColor = System.Drawing.Color.Transparent;
+            this.label1.Location = new System.Drawing.Point(16, 93);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(76, 16);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "NEW URL";
             // 
             // label2
             // 
@@ -147,17 +116,50 @@ namespace GetDbmData2
             this.TimeLapseTxtBox.Size = new System.Drawing.Size(94, 27);
             this.TimeLapseTxtBox.TabIndex = 3;
             // 
-            // label1
+            // Blinker
             // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Black;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label1.ForeColor = System.Drawing.Color.Transparent;
-            this.label1.Location = new System.Drawing.Point(16, 93);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(76, 16);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "NEW URL";
+            this.Blinker.AutoSize = true;
+            this.Blinker.Location = new System.Drawing.Point(428, 16);
+            this.Blinker.Name = "Blinker";
+            this.Blinker.Size = new System.Drawing.Size(17, 16);
+            this.Blinker.TabIndex = 1;
+            this.Blinker.TabStop = true;
+            this.Blinker.UseVisualStyleBackColor = true;
+            // 
+            // StopButton
+            // 
+            this.StopButton.Location = new System.Drawing.Point(228, 10);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(94, 29);
+            this.StopButton.TabIndex = 1;
+            this.StopButton.Text = "STOP";
+            this.StopButton.UseVisualStyleBackColor = true;
+            // 
+            // StartBtn
+            // 
+            this.StartBtn.Location = new System.Drawing.Point(328, 10);
+            this.StartBtn.Name = "StartBtn";
+            this.StartBtn.Size = new System.Drawing.Size(94, 29);
+            this.StartBtn.TabIndex = 1;
+            this.StartBtn.Text = "START";
+            this.StartBtn.UseVisualStyleBackColor = true;
+            this.StartBtn.Click += new System.EventHandler(this.StartBtn_Click);
+            // 
+            // NewUrlTxtBox
+            // 
+            this.NewUrlTxtBox.Location = new System.Drawing.Point(16, 103);
+            this.NewUrlTxtBox.Name = "NewUrlTxtBox";
+            this.NewUrlTxtBox.Size = new System.Drawing.Size(352, 27);
+            this.NewUrlTxtBox.TabIndex = 2;
+            // 
+            // GoBtn
+            // 
+            this.GoBtn.Location = new System.Drawing.Point(374, 103);
+            this.GoBtn.Name = "GoBtn";
+            this.GoBtn.Size = new System.Drawing.Size(48, 29);
+            this.GoBtn.TabIndex = 1;
+            this.GoBtn.Text = "GO";
+            this.GoBtn.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
