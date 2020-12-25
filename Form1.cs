@@ -1,6 +1,7 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -9,7 +10,7 @@ namespace GetDbmData2
 {
     public partial class Form1 : Form
     {
-        public ChromiumWebBrowser chromeBrowser;
+        public List<ChromiumWebBrowser> chromeBrowserList = new List<ChromiumWebBrowser>();
         private bool IsStarted = false;
         private int logFrequency = 1 * 1000; // 1s by default
         private int versionNumber = 0;
@@ -21,28 +22,32 @@ namespace GetDbmData2
         private const string firstLineHeader = "DateStamp;TimeStamp;Frequency;dbmValue;dbmPeak";
         private const string dateFormat = "dd-MM-yyy";
         private const string csvSeparator = ";";
-        private readonly string defaultFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "csv_files", DateTime.Today.ToString(dateFormat));
+        private string defaultFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "csv_files", DateTime.Today.ToString(dateFormat));
 
         public Form1()
         {
             InitializeComponent();
-            // Start the browser after initialize global component
+            InitializeCefSettings();
+        }
+
+        private void InitializeCefSettings()
+        {
+            CefSettings settings = new CefSettings(); // Change settings as needed
+            Cef.EnableHighDPISupport();
+            Cef.Initialize(settings);
             InitializeChromium();
         }
 
         private void InitializeChromium()
         {
-            CefSettings settings = new CefSettings();
-            // Initialize cef with the provided settings
-            Cef.EnableHighDPISupport();
-            Cef.Initialize(settings);
-
             // Create a browser component
-            chromeBrowser = new ChromiumWebBrowser(uri.ToString());
-
-            // Add it to the form and fill it to the form window.
-            Tabs.SelectedTab.Controls.Add(chromeBrowser);
+            var chromeBrowser = new ChromiumWebBrowser(uri.ToString());
             chromeBrowser.Dock = DockStyle.Fill;
+            chromeBrowserList.Add(chromeBrowser);
+
+            // Add it to the selected tab
+            Tabs.SelectedTab.Controls.Add(chromeBrowser);
+            Tabs.SelectedTab.Text = uri.Host;
             try
             {
                 // create folder if not exists
@@ -68,7 +73,7 @@ namespace GetDbmData2
         {
             IsStarted = false;
             Cef.Shutdown();
-            chromeBrowser.Dispose();
+            chromeBrowserList.ForEach(b => b.Dispose());
         }
 
         // START BUTTON
@@ -110,86 +115,89 @@ namespace GetDbmData2
                 await Task.Delay(logFrequency);
                 Blinker.Checked = !Blinker.Checked;
 
-                var frame = chromeBrowser.GetMainFrame();
-                var task_dbmValue = frame.EvaluateScriptAsync("document.getElementById('numericalsmeter').innerHTML;", null);
-                string dbmValue = "no value";
-                var task_dbmPeak = frame.EvaluateScriptAsync("document.getElementById('numericalsmeterpeak').innerHTML;", null);
-                string dbmPeak = "no value";
-                var task_frequency = frame.EvaluateScriptAsync("document.getElementsByName('frequency')[0].value;", null);
-                var frequency = "no value";
-
-                // get dbm value
-                await task_dbmValue.ContinueWith(t =>
+                chromeBrowserList.ForEach(async chromeBrowser =>
                 {
-                    if (!t.IsFaulted)
+                    var frame = chromeBrowser.GetMainFrame();
+                    var task_dbmValue = frame.EvaluateScriptAsync("document.getElementById('numericalsmeter').innerHTML;", null);
+                    string dbmValue = "no value";
+                    var task_dbmPeak = frame.EvaluateScriptAsync("document.getElementById('numericalsmeterpeak').innerHTML;", null);
+                    string dbmPeak = "no value";
+                    var task_frequency = frame.EvaluateScriptAsync("document.getElementsByName('frequency')[0].value;", null);
+                    var frequency = "no value";
+
+                    // get dbm value
+                    await task_dbmValue.ContinueWith(t =>
                     {
-                        var response = t.Result;
-                        EvaluateJavaScriptResult = response.Success ? (response.Result != null ? response.Result.ToString() : "null") : response.Message;
-                        var splittedResult = EvaluateJavaScriptResult.Split(';');
-                        dbmValue = splittedResult.Length > 1 ? splittedResult[splittedResult.Length - 1] : EvaluateJavaScriptResult;
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-
-                // get dbm peak
-                await task_dbmPeak.ContinueWith(t =>
-                {
-                    if (!t.IsFaulted)
-                    {
-                        var response = t.Result;
-                        EvaluateJavaScriptResult = response.Success ? (response.Result != null ? response.Result.ToString() : "null") : response.Message;
-                        var splittedResult = EvaluateJavaScriptResult.Split(';');
-                        dbmPeak = splittedResult.Length > 1 ? splittedResult[splittedResult.Length - 1] : EvaluateJavaScriptResult;
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-
-                // get Frequency
-                await task_frequency.ContinueWith(t =>
-                {
-                    if (!t.IsFaulted)
-                    {
-                        var response = t.Result;
-                        EvaluateJavaScriptResult = response.Success ? (response.Result != null ? response.Result.ToString() : "null") : response.Message;
-                        frequency = EvaluateJavaScriptResult;
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-
-                // write lines after all tasks are done
-                await Task.WhenAll(task_dbmValue, task_dbmPeak, task_frequency).ContinueWith(t =>
-                {
-                    try
-                    {
-                        var filePath = GetFilePath();
-                        if (!Directory.Exists(defaultFolderPath)) Directory.CreateDirectory(defaultFolderPath);
-                        if (!File.Exists(filePath)) File.Create(filePath).Close();
-
-                        var lineCount = File.ReadAllLines(filePath).Length;
-
-                        // Increase version number of the file in question.
-                        while (lineCount > maxLines)
+                        if (!t.IsFaulted)
                         {
-                            versionNumber++;
-                            if (!File.Exists(filePath)) File.Create(filePath);
-                            lineCount = File.ReadAllLines(filePath).Length;
+                            var response = t.Result;
+                            EvaluateJavaScriptResult = response.Success ? (response.Result != null ? response.Result.ToString() : "null") : response.Message;
+                            var splittedResult = EvaluateJavaScriptResult.Split(';');
+                            dbmValue = splittedResult.Length > 1 ? splittedResult[splittedResult.Length - 1] : EvaluateJavaScriptResult;
                         }
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        using (StreamWriter writer = new StreamWriter(new FileStream(filePath, FileMode.Append)))
+                    // get dbm peak
+                    await task_dbmPeak.ContinueWith(t =>
+                    {
+                        if (!t.IsFaulted)
                         {
-                            if (lineCount == 0)
+                            var response = t.Result;
+                            EvaluateJavaScriptResult = response.Success ? (response.Result != null ? response.Result.ToString() : "null") : response.Message;
+                            var splittedResult = EvaluateJavaScriptResult.Split(';');
+                            dbmPeak = splittedResult.Length > 1 ? splittedResult[splittedResult.Length - 1] : EvaluateJavaScriptResult;
+                        }
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
+
+                    // get Frequency
+                    await task_frequency.ContinueWith(t =>
+                    {
+                        if (!t.IsFaulted)
+                        {
+                            var response = t.Result;
+                            EvaluateJavaScriptResult = response.Success ? (response.Result != null ? response.Result.ToString() : "null") : response.Message;
+                            frequency = EvaluateJavaScriptResult;
+                        }
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
+
+                    // write lines after all tasks are done
+                    await Task.WhenAll(task_dbmValue, task_dbmPeak, task_frequency).ContinueWith(t =>
+                    {
+                        try
+                        {
+                            var filePath = GetFilePath();
+                            if (!Directory.Exists(defaultFolderPath)) Directory.CreateDirectory(defaultFolderPath);
+                            if (!File.Exists(filePath)) File.Create(filePath).Close();
+
+                            var lineCount = File.ReadAllLines(filePath).Length;
+
+                            // Increase version number of the file in question.
+                            while (lineCount > maxLines)
                             {
-                                writer.WriteLine(firstLineHeader);
+                                versionNumber++;
+                                if (!File.Exists(filePath)) File.Create(filePath);
+                                lineCount = File.ReadAllLines(filePath).Length;
                             }
-                            var splitDateTime = DateTime.Now.ToString(dateFormat + " HH:mm:ss.fff").Split(' ');
-                            writer.WriteLine($"\"{splitDateTime[0]}\"{csvSeparator}\"{splitDateTime[1]}\"{csvSeparator}{frequency}{csvSeparator}{dbmValue}{csvSeparator}{dbmPeak}");
-                        }
 
-                        // reset version number to 0
-                        versionNumber = 0;
-                    }
-                    catch (Exception e)
-                    {
-                        ErrorHandle($"[Error writing to file] - {e.Message}");
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                            using (StreamWriter writer = new StreamWriter(new FileStream(filePath, FileMode.Append)))
+                            {
+                                if (lineCount == 0)
+                                {
+                                    writer.WriteLine(firstLineHeader);
+                                }
+                                var splitDateTime = DateTime.Now.ToString(dateFormat + " HH:mm:ss.fff").Split(' ');
+                                writer.WriteLine($"\"{splitDateTime[0]}\"{csvSeparator}\"{splitDateTime[1]}\"{csvSeparator}{frequency}{csvSeparator}{dbmValue}{csvSeparator}{dbmPeak}");
+                            }
+
+                            // reset version number to 0
+                            versionNumber = 0;
+                        }
+                        catch (Exception e)
+                        {
+                            ErrorHandle($"[Error writing to file] - {e.Message}");
+                        }
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                });
             }
             Blinker.Checked = false;
         }
@@ -225,7 +233,7 @@ namespace GetDbmData2
             try
             {
                 uri = uriTemp;
-                chromeBrowser.Load(uri.ToString());
+                chromeBrowserList[Tabs.SelectedIndex].Load(uri.ToString());
             }
             catch (Exception exception)
             {
@@ -247,6 +255,24 @@ namespace GetDbmData2
             // show button
             StartBtn.Show();
             GoBtn.Show();
+        }
+
+        private void CloseTabBtn_Click(object sender, EventArgs e) => Tabs.TabPages.Remove(Tabs.SelectedTab);
+
+        private void NewTabBtn_Click(object sender, EventArgs e)
+        {
+            var newTab = new TabPage();
+            Tabs.TabPages.Add(newTab);
+            Tabs.SelectedTab = newTab;
+            InitializeChromium();
+        }
+
+        private void Tabs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(chromeBrowserList.Count > Tabs.SelectedIndex)
+            {
+                NewUrlTxtBox.Text = chromeBrowserList[Tabs.SelectedIndex].Address;
+            }
         }
     }
 }
