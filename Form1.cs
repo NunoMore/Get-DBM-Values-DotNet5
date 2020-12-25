@@ -57,7 +57,7 @@ namespace GetDbmData2
             }
             catch (Exception e)
             {
-                ErrorHandle($"[Error creating folder] - {e.Message}");
+                ErrorHandle(e.Message, "Error creating folder");
             }
 
             // set url value to display
@@ -108,6 +108,11 @@ namespace GetDbmData2
 
                 chromeBrowserList.ForEach(async chromeBrowser =>
                 {
+                    if (!chromeBrowser.IsBrowserInitialized)
+                    {
+                        return;
+                    }
+
                     var versionNumber = 0;
                     var frame = chromeBrowser.GetMainFrame();
                     var task_dbmValue = frame.EvaluateScriptAsync("document.getElementById('numericalsmeter').innerHTML;", null);
@@ -186,7 +191,7 @@ namespace GetDbmData2
                         }
                         catch (Exception e)
                         {
-                            ErrorHandle($"[Error writing to file] - {e.Message}");
+                            ErrorHandle(e.Message, "Error writing to file");
                         }
                     }, TaskScheduler.FromCurrentSynchronizationContext());
                 });
@@ -200,7 +205,7 @@ namespace GetDbmData2
             var tb = (TextBox)sender;
             if (!int.TryParse(tb.Text, out logFrequency))
             {
-                ErrorHandle("Time lapse must be a number");
+                ErrorHandle("Time lapse must be a number", "Error defining time lapse");
             }
 
             if (logFrequency < 100)
@@ -215,7 +220,7 @@ namespace GetDbmData2
             var tb = (TextBox)sender;
             if (!Uri.TryCreate(tb.Text, UriKind.RelativeOrAbsolute, out uriTemp)) // getvalue from text input
             {
-                ErrorHandle("Url format not recognized");
+                ErrorHandle("Url format not recognized", "Error defining new URL");
             }
         }
 
@@ -230,15 +235,15 @@ namespace GetDbmData2
             }
             catch (Exception exception)
             {
-                ErrorHandle($"[Error Loading Url] - {exception.Message}");
+                ErrorHandle(exception.Message, "Error Loading Url");
             }
         }
 
         private string GetFilePath(string uriHost, int versionNumber) => Path.Combine(defaultFolderPath, $"{uriHost}_{DateTime.Today.ToString(dateFormat)}_{versionNumber}.csv");
 
-        private void ErrorHandle(string message)
+        private void ErrorHandle(string message, string title)
         {
-            MessageBox.Show(message);
+            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
             IsStarted = false;
 
             // enable click
@@ -250,7 +255,18 @@ namespace GetDbmData2
             GoBtn.Show();
         }
 
-        private void CloseTabBtn_Click(object sender, EventArgs e) => Tabs.TabPages.Remove(Tabs.SelectedTab);
+        private void CloseTabBtn_Click(object sender, EventArgs e)
+        {
+            if(Tabs.TabPages.Count == 1)
+            {
+                ErrorHandle($"Cannot close tab. {Environment.NewLine}Only one tab open !", "Error closing tab");
+            }
+            else
+            {
+                chromeBrowserList.Remove(chromeBrowserList[Tabs.SelectedIndex]);
+                Tabs.TabPages.Remove(Tabs.SelectedTab);
+            }
+        }
 
         private void NewTabBtn_Click(object sender, EventArgs e)
         {

@@ -171,13 +171,13 @@ namespace GetDbmData2
             this.NewUrlTxtBox.Location = new System.Drawing.Point(18, 53);
             this.NewUrlTxtBox.Name = "NewUrlTxtBox";
             this.NewUrlTxtBox.PlaceholderText = "Insert New Url";
-            this.NewUrlTxtBox.Size = new System.Drawing.Size(670, 27);
+            this.NewUrlTxtBox.Size = new System.Drawing.Size(321, 27);
             this.NewUrlTxtBox.TabIndex = 2;
             this.NewUrlTxtBox.TextChanged += new System.EventHandler(this.NewUrlTxtBox_TextChanged);
             // 
             // GoBtn
             // 
-            this.GoBtn.Location = new System.Drawing.Point(694, 53);
+            this.GoBtn.Location = new System.Drawing.Point(345, 51);
             this.GoBtn.Name = "GoBtn";
             this.GoBtn.Size = new System.Drawing.Size(48, 29);
             this.GoBtn.TabIndex = 1;
