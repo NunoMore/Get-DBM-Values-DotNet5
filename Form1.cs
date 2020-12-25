@@ -36,6 +36,9 @@ namespace GetDbmData2
             Cef.EnableHighDPISupport();
             Cef.Initialize(settings);
             InitializeChromium();
+
+            // set time lapse log frequency value to display
+            TimeLapseTxtBox.Text = logFrequency.ToString();
         }
 
         private void InitializeChromium()
@@ -47,7 +50,7 @@ namespace GetDbmData2
 
             // Add it to the selected tab
             Tabs.SelectedTab.Controls.Add(chromeBrowser);
-            Tabs.SelectedTab.Text = uri.Host;
+            SetTabText();
             try
             {
                 // create folder if not exists
@@ -58,15 +61,8 @@ namespace GetDbmData2
                 ErrorHandle($"[Error creating folder] - {e.Message}");
             }
 
-            try
-            {
-                // set time lapse log frequency value to display
-                TimeLapseTxtBox.Text = logFrequency.ToString();
-
-                // set url value to display
-                NewUrlTxtBox.Text = uri.ToString();
-            }
-            catch { }
+            // set url value to display
+            SetNewUrlText();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -83,11 +79,9 @@ namespace GetDbmData2
 
             // disable clicks until stopped
             StartBtn.Click -= StartBtn_Click;
-            GoBtn.Click -= GoBtn_Click;
 
             // hide button until stopped
             StartBtn.Hide();
-            GoBtn.Hide();
 
             // do asynchronously
             WriteData();
@@ -100,11 +94,9 @@ namespace GetDbmData2
 
             // enable click
             StartBtn.Click += StartBtn_Click;
-            GoBtn.Click += GoBtn_Click;
 
             // show button
             StartBtn.Show();
-            GoBtn.Show();
         }
 
         private async void WriteData()
@@ -233,6 +225,7 @@ namespace GetDbmData2
             try
             {
                 uri = uriTemp;
+                SetTabText();
                 chromeBrowserList[Tabs.SelectedIndex].Load(uri.ToString());
             }
             catch (Exception exception)
@@ -271,8 +264,12 @@ namespace GetDbmData2
         {
             if(chromeBrowserList.Count > Tabs.SelectedIndex)
             {
-                NewUrlTxtBox.Text = chromeBrowserList[Tabs.SelectedIndex].Address;
+                SetNewUrlText();
             }
         }
+
+        private void SetTabText() => Tabs.SelectedTab.Text = uri.Host;
+
+        private void SetNewUrlText() => NewUrlTxtBox.Text = chromeBrowserList[Tabs.SelectedIndex].Address;
     }
 }
