@@ -13,7 +13,6 @@ namespace GetDbmData2
         public List<ChromiumWebBrowser> chromeBrowserList = new List<ChromiumWebBrowser>();
         private bool IsStarted = false;
         private int logFrequency = 1 * 1000; // 1s by default
-        private int versionNumber = 0;
         private const int maxLines = 1000 * 1000;
 
         private Uri uri = new Uri("http://websdr.ewi.utwente.nl:8901/"); // utwente university url by default
@@ -109,6 +108,7 @@ namespace GetDbmData2
 
                 chromeBrowserList.ForEach(async chromeBrowser =>
                 {
+                    var versionNumber = 0;
                     var frame = chromeBrowser.GetMainFrame();
                     var task_dbmValue = frame.EvaluateScriptAsync("document.getElementById('numericalsmeter').innerHTML;", null);
                     string dbmValue = "no value";
@@ -157,7 +157,7 @@ namespace GetDbmData2
                     {
                         try
                         {
-                            var filePath = GetFilePath();
+                            var filePath = GetFilePath(new Uri(chromeBrowser.Address).Host, versionNumber);
                             if (!Directory.Exists(defaultFolderPath)) Directory.CreateDirectory(defaultFolderPath);
                             if (!File.Exists(filePath)) File.Create(filePath).Close();
 
@@ -234,7 +234,7 @@ namespace GetDbmData2
             }
         }
 
-        private string GetFilePath() => Path.Combine(defaultFolderPath, $"{uri.Host}_{DateTime.Today.ToString(dateFormat)}_{versionNumber}.csv");
+        private string GetFilePath(string uriHost, int versionNumber) => Path.Combine(defaultFolderPath, $"{uriHost}_{DateTime.Today.ToString(dateFormat)}_{versionNumber}.csv");
 
         private void ErrorHandle(string message)
         {
