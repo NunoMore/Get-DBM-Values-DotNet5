@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GetDbmData2
+namespace GetDbmData
 {
     public partial class Form1 : Form
     {

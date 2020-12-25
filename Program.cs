@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace GetDbmData2
+namespace GetDbmData
 {
     static class Program
     {

@@ -1,7 +1,7 @@
 ﻿
 using System.Windows.Forms;
 
-namespace GetDbmData2
+namespace GetDbmData
 {
     partial class Form1
     {
